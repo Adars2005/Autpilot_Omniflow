@@ -161,6 +161,10 @@ docker volume rm autopilot-template_postgres_data autopilot-template_document_st
 docker compose up --build -d
 ```
 
+run frontend : cd frontend ,  npm run dev -- --port 3001
+
+run backend :  uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+
 ---
 
 ## 📋 Common Commands Reference
