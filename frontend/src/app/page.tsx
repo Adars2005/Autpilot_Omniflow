@@ -1,377 +1,242 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { motion, useInView } from 'framer-motion'
-import { apiClient } from '@/lib/api-client'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CardWatermark } from '@/components/ui/card-watermark'
-import { Icons } from '@/components/ui/icons'
-import { ActivityChart } from '@/components/ActivityChart'
-import { cn } from '@/lib/utils'
+import { GlassCard } from '@/components/founderos/GlassCard'
+import {
+  Zap,
+  Shield,
+  Hexagon,
+  ArrowRight,
+  Brain,
+  Wallet,
+  Users,
+  BarChart3,
+  Sparkles,
+  ChevronRight,
+} from 'lucide-react'
 
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-}
+const features = [
+  { icon: Brain, title: 'Autonomous Agents', desc: 'CEO, Finance, Growth, and 10+ department agents working in parallel.' },
+  { icon: Wallet, title: 'Treasury Control', desc: 'Multi-wallet budgeting with on-chain approval workflows.' },
+  { icon: Users, title: 'Investor Intelligence', desc: 'AI-matched investors with warm intro probability scoring.' },
+  { icon: Shield, title: 'Governance Layer', desc: 'Board of Directors debates, votes, and records decisions.' },
+  { icon: Hexagon, title: 'Monad Trust Layer', desc: 'On-chain decision ledger, reputation, and company memory.' },
+  { icon: BarChart3, title: 'Startup Readiness', desc: 'Real-time scoring across market, product, funding, and growth.' },
+]
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  },
-}
+const agents = [
+  'CEO Agent', 'Product Agent', 'CTO Agent', 'Finance Agent',
+  'Treasury Agent', 'Growth Agent', 'Marketing Agent', 'Risk Agent',
+  'Governance Agent', 'Investor Intelligence', 'Market Intelligence',
+]
 
-// Animated number component
-function AnimatedNumber({
-  value,
-  suffix = '',
-  duration = 1000,
-}: {
-  value: number
-  suffix?: string
-  duration?: number
-}) {
-  const [displayValue, setDisplayValue] = useState(0)
-  const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: true, amount: 0.5 })
-  const prevValue = useRef(0)
+const steps = [
+  { step: '01', title: 'Upload Your Startup', desc: 'Pitch deck, PRD, business plan, or paste your idea.' },
+  { step: '02', title: 'Agents Activate', desc: '12+ AI agents analyze, simulate, and build your company.' },
+  { step: '03', title: 'Command Center Live', desc: 'Explore departments, treasury, investors, and governance.' },
+]
 
-  useEffect(() => {
-    if (!isInView || value === 0) return
-
-    const from = prevValue.current
-    prevValue.current = value
-
-    const startTime = performance.now()
-
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(2, -10 * progress)
-
-      setDisplayValue(Math.round(from + eased * (value - from)))
-
-      if (progress < 1) {
-        requestAnimationFrame(animate)
-      } else {
-        setDisplayValue(value)
-      }
-    }
-
-    requestAnimationFrame(animate)
-  }, [value, duration, isInView])
-
-  const formatValue = (num: number): string => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K'
-    }
-    return num.toString()
-  }
-
+export default function LandingPage() {
   return (
-    <span ref={ref}>
-      {formatValue(displayValue)}
-      {suffix}
-    </span>
-  )
-}
-
-// Stats Card Component with Bento styling
-interface StatCardProps {
-  title: string
-  value: number
-  suffix?: string
-  icon: React.ElementType
-  trend?: { value: string; positive: boolean }
-  colorClass: string
-  delay?: number
-}
-
-function StatCard({
-  title,
-  value,
-  suffix = '',
-  icon: Icon,
-  trend,
-  colorClass,
-  delay = 0,
-}: StatCardProps) {
-  return (
-    <motion.div
-      variants={itemVariants}
-      initial='hidden'
-      animate='visible'
-      transition={{ delay }}
-      whileHover={{ y: -4 }}
-    >
-      <Card className='group relative h-full cursor-default overflow-hidden'>
-        {/* Branded watermark texture */}
-        <CardWatermark opacity={3} scale={0.9} />
-        <CardContent className='relative z-10 p-5'>
-          <div className='flex items-start justify-between'>
-            <div className='space-y-2'>
-              {/* Micro label */}
-              <p className='text-micro uppercase text-brand-muted transition-colors duration-200 group-hover:text-brand-cornflower'>
-                {title}
-              </p>
-              {/* Display number */}
-              <p className='font-display text-[2.25rem] font-bold leading-none tracking-tight text-brand-navy'>
-                <AnimatedNumber value={value} suffix={suffix} />
-              </p>
-              {/* Trend */}
-              {trend && (
-                <motion.p
-                  className={cn(
-                    'flex items-center gap-1 text-xs font-medium',
-                    trend.positive ? 'text-emerald-600' : 'text-red-500'
-                  )}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: delay + 0.3 }}
-                >
-                  {trend.positive ? (
-                    <Icons.trendingUp className='h-3 w-3' strokeWidth={2} />
-                  ) : (
-                    <Icons.trendingUp
-                      className='h-3 w-3 rotate-180'
-                      strokeWidth={2}
-                    />
-                  )}
-                  {trend.value}
-                </motion.p>
-              )}
+    <div className="founderos-grid relative min-h-screen overflow-hidden">
+      {/* Nav */}
+      <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-[#030308]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
+              <Zap className="h-4 w-4 text-white" />
             </div>
-            {/* Icon */}
-            <motion.div
-              className={cn(
-                'rounded-xl p-2.5 text-white',
-                'shadow-lg',
-                colorClass
-              )}
-              whileHover={{ scale: 1.15, rotate: 5 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Icon className='h-5 w-5' strokeWidth={1.5} />
-            </motion.div>
+            <span className="font-display text-lg font-bold text-white">FounderOS</span>
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard">
+              <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/5">
+                View Demo
+              </Button>
+            </Link>
+            <Link href="/start">
+              <Button className="bg-indigo-600 hover:bg-indigo-500 text-white">
+                Start Building
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
-
-// Hero Section
-function HeroSection({ userName }: { userName?: string }) {
-  const firstName = userName?.split(' ')[0] || 'there'
-
-  return (
-    <motion.div
-      className='col-span-12 py-2'
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-    >
-      <h1 className='text-display-3 font-bold tracking-tight text-brand-navy lg:text-display-2'>
-        Where Intelligence <br className='hidden sm:block' />
-        <span className='text-gradient'>Meets Human.</span>
-      </h1>
-      <p className='mt-4 text-lg font-light text-muted-foreground'>
-        Welcome back, {firstName}. Your Marketing Command Center is ready.
-      </p>
-    </motion.div>
-  )
-}
-
-// Diagnostics Card
-function DiagnosticsCard() {
-  const [apiResponse, setApiResponse] = useState<string>('')
-  const [adminResponse, setAdminResponse] = useState<string>('')
-  const [isLoading, setIsLoading] = useState(false)
-
-  const callApi = async (
-    endpoint: string,
-    setter: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    setIsLoading(true)
-    setter('Loading...')
-    try {
-      const data = await apiClient.get(endpoint)
-      setter(JSON.stringify(data, null, 2))
-    } catch (error) {
-      setter(
-        `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
-      )
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  return (
-    <Card className='relative col-span-12 h-full overflow-hidden'>
-      <CardWatermark opacity={3} scale={1.1} />
-      <CardHeader className='relative z-10'>
-        <CardTitle className='flex items-center gap-2'>
-          <Icons.activity
-            className='h-5 w-5 text-brand-cornflower'
-            strokeWidth={1.5}
-          />
-          System Diagnostics
-        </CardTitle>
-      </CardHeader>
-      <CardContent className='relative z-10 space-y-6'>
-        <div className='space-y-3'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <p className='text-sm font-medium text-foreground'>
-                Standard Authorization
-              </p>
-              <p className='mt-0.5 font-mono text-xs text-muted-foreground'>
-                /api/health
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={() => callApi('/api/health', setApiResponse)}
-            disabled={isLoading}
-            variant='outline'
-            className='w-full'
-          >
-            {isLoading ? 'Running...' : 'Run Diagnostics'}
-          </Button>
-          {apiResponse && (
-            <div className='rounded-xl border border-border/50 bg-muted/30 p-4'>
-              <pre className='overflow-x-auto font-mono text-xs text-muted-foreground'>
-                <code>{apiResponse}</code>
-              </pre>
-            </div>
-          )}
         </div>
+      </nav>
 
-        <div className='h-px bg-border/50' />
-
-        <div className='space-y-3'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <p className='text-sm font-medium text-foreground'>
-                Admin Verification
-              </p>
-              <p className='mt-0.5 font-mono text-xs text-muted-foreground'>
-                /api/admin/users
-              </p>
+      {/* Hero */}
+      <section className="relative px-6 pb-24 pt-32">
+        <div className="mx-auto max-w-5xl text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-sm text-indigo-300">
+              <Sparkles className="h-3.5 w-3.5" />
+              The Autonomous Startup Operating System
             </div>
-          </div>
-          <Button
-            onClick={() => callApi('/api/admin/users?max=1', setAdminResponse)}
-            disabled={isLoading}
-            variant='gradient'
-            className='w-full'
+            <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl">
+              Deploy an{' '}
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                Autonomous Company
+              </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-white/60">
+              Upload your startup idea and FounderOS creates an AI-native company with departments,
+              treasury, governance, investor intelligence, and execution planning.
+            </p>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <Link href="/start">
+                <Button size="lg" className="h-12 bg-indigo-600 px-8 hover:bg-indigo-500 text-white">
+                  Start Building
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/dashboard">
+                <Button size="lg" variant="outline" className="h-12 border-white/20 bg-white/5 px-8 text-white hover:bg-white/10">
+                  View Demo
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Dashboard preview mock */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative mx-auto mt-16 max-w-4xl"
           >
-            {isLoading ? 'Verifying...' : 'Verify Admin Access'}
-            <Icons.arrowRight className='ml-2 h-4 w-4' />
-          </Button>
-          {adminResponse && (
-            <div className='rounded-xl border border-border/50 bg-muted/30 p-4'>
-              <pre className='overflow-x-auto font-mono text-xs text-muted-foreground'>
-                <code>{adminResponse}</code>
-              </pre>
-            </div>
-          )}
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-cyan-500/20 blur-2xl" />
+            <GlassCard glow className="relative overflow-hidden p-1">
+              <div className="rounded-xl bg-[#0a0a14] p-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
+                  <div className="h-3 w-3 rounded-full bg-green-500/80" />
+                  <span className="ml-2 text-xs text-white/40">FounderOS Command Center</span>
+                </div>
+                <div className="grid grid-cols-4 gap-3">
+                  {['Health 72%', 'Funding 71%', 'Product 65%', 'Growth 69%'].map((s) => (
+                    <div key={s} className="rounded-lg bg-white/5 p-3 text-center">
+                      <p className="text-sm font-semibold text-white">{s.split(' ')[0]}</p>
+                      <p className="text-lg font-bold text-indigo-400">{s.split(' ')[1]}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                  {['CEO Agent ✓', 'Treasury ✓', 'Board Active'].map((a) => (
+                    <div key={a} className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-white/60">
+                      {a}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
         </div>
-      </CardContent>
-    </Card>
-  )
-}
+      </section>
 
-// Main Dashboard — no auth required, renders directly
-export default function HomePage() {
-  const [metrics, setMetrics] = useState<any>(null)
+      {/* Features */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-center font-display text-3xl font-bold text-white md:text-4xl">
+            Everything a startup needs. Autonomous.
+          </h2>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon: Icon, title, desc }, i) => (
+              <motion.div key={title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
+                <GlassCard hover className="h-full p-6">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20">
+                    <Icon className="h-5 w-5 text-indigo-400" />
+                  </div>
+                  <h3 className="font-semibold text-white">{title}</h3>
+                  <p className="mt-2 text-sm text-white/50">{desc}</p>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-  useEffect(() => {
-    async function fetchMetrics() {
-      try {
-        const data = await apiClient.get('/api/dashboard/metrics')
-        setMetrics(data)
-      } catch (error) {
-        console.error('Failed to fetch metrics:', error)
-      }
-    }
-    fetchMetrics()
-  }, [])
+      {/* How it works */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-center font-display text-3xl font-bold text-white">How It Works</h2>
+          <div className="mt-12 space-y-6">
+            {steps.map(({ step, title, desc }) => (
+              <GlassCard key={step} className="flex items-center gap-6 p-6">
+                <span className="font-display text-3xl font-bold text-indigo-500/50">{step}</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{title}</h3>
+                  <p className="text-white/50">{desc}</p>
+                </div>
+                <ChevronRight className="ml-auto h-5 w-5 text-white/20" />
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+      </section>
 
-  return (
-    <motion.div
-      className='space-y-6'
-      variants={containerVariants}
-      initial='hidden'
-      animate='visible'
-    >
-      {/* Hero Section */}
-      <HeroSection userName='Developer' />
+      {/* Agent Departments */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-6xl text-center">
+          <h2 className="font-display text-3xl font-bold text-white">Agent Departments</h2>
+          <p className="mt-2 text-white/50">Every function of a real company, powered by AI agents</p>
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            {agents.map((a) => (
+              <span key={a} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
+                {a}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* Stats Grid - Bento style */}
-      <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
-        <StatCard
-          title='Campaigns Launched'
-          value={metrics ? metrics.content_pipeline.value : 0}
-          icon={Icons.fileText}
-          trend={metrics ? metrics.content_pipeline.trend : undefined}
-          colorClass='bg-brand-navy'
-          delay={0.1}
-        />
-        <StatCard
-          title='Success Rate'
-          value={metrics ? metrics.engagement.value : 0}
-          suffix='%'
-          icon={Icons.activity}
-          trend={metrics ? metrics.engagement.trend : undefined}
-          colorClass='bg-brand-cornflower'
-          delay={0.2}
-        />
-        <StatCard
-          title='Budget Efficiency'
-          value={metrics ? metrics.roi.value : 0}
-          suffix='%'
-          icon={Icons.trendingUp}
-          trend={metrics ? metrics.roi.trend : undefined}
-          colorClass='bg-brand-purple'
-          delay={0.3}
-        />
-        <StatCard
-          title='AI Autonomy'
-          value={metrics ? metrics.autonomy.value : 0}
-          suffix='%'
-          icon={Icons.sparkles}
-          trend={metrics ? metrics.autonomy.trend : undefined}
-          colorClass='bg-gradient-to-br from-brand-navy to-brand-purple'
-          delay={0.4}
-        />
-      </div>
+      {/* Monad */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-4xl">
+          <GlassCard glow className="p-8 md:p-12">
+            <div className="flex items-center gap-3">
+              <Hexagon className="h-8 w-8 text-indigo-400" />
+              <h2 className="font-display text-2xl font-bold text-white md:text-3xl">Monad Trust Layer</h2>
+            </div>
+            <p className="mt-4 text-white/60">
+              Every decision, approval, treasury allocation, and reputation update is recorded on-chain.
+              Company passport, agent wallets, governance contracts, and institutional memory — all verifiable.
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {['Company Passport', 'Decision Ledger', 'Treasury Contracts', 'Reputation Ledger'].map((item) => (
+                <div key={item} className="flex items-center gap-2 rounded-lg bg-white/5 px-4 py-3 text-sm text-white/70">
+                  <div className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+                  {item}
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        </div>
+      </section>
 
-      {/* Activity Chart - Full Width */}
-      <motion.div variants={itemVariants}>
-        <ActivityChart className='col-span-12' />
-      </motion.div>
+      {/* CTA */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-4xl font-bold text-white">
+            Ready to deploy your company?
+          </h2>
+          <p className="mt-4 text-white/50">
+            Upload your pitch deck and watch FounderOS build your autonomous startup in minutes.
+          </p>
+          <Link href="/start" className="mt-8 inline-block">
+            <Button size="lg" className="h-12 bg-indigo-600 px-10 hover:bg-indigo-500 text-white">
+              Start Building
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
 
-      {/* System Diagnostics */}
-      <motion.div
-        className='grid gap-6 lg:grid-cols-12'
-        variants={itemVariants}
-      >
-        <DiagnosticsCard />
-      </motion.div>
-    </motion.div>
+      <footer className="border-t border-white/5 px-6 py-8 text-center text-sm text-white/30">
+        FounderOS · The Autonomous Startup Operating System
+      </footer>
+    </div>
   )
 }

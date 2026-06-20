@@ -29,16 +29,21 @@ const geologica = Geologica({
 // Routes that should NOT show the main app shell (sidebar, header)
 const AUTH_ROUTES = ['/auth/signin', '/auth/register', '/auth/error']
 
+// FounderOS routes use their own layout
+const FOUNDEROS_STANDALONE = ['/', '/start', '/deploy']
+const FOUNDEROS_DASHBOARD_PREFIX = '/dashboard'
+
 // Inner layout that can access sidebar context and pathname
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { isCollapsed } = useSidebar()
   const pathname = usePathname()
 
-  // Check if current route is an auth route (should be full-screen)
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname?.startsWith(route))
+  const isFounderOSStandalone =
+    FOUNDEROS_STANDALONE.includes(pathname ?? '') ||
+    pathname?.startsWith(FOUNDEROS_DASHBOARD_PREFIX)
 
-  // Auth routes get a clean, full-screen layout
   if (isAuthRoute) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100'>
@@ -48,6 +53,11 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         </main>
       </div>
     )
+  }
+
+  // FounderOS — standalone dark layout (landing, onboard, deploy, dashboard)
+  if (isFounderOSStandalone) {
+    return <div className="founderos-bg min-h-screen text-white">{children}</div>
   }
 
   // Normal app layout with sidebar and header
@@ -109,8 +119,8 @@ export default function RootLayout({
   return (
     <html lang='en' className='light' suppressHydrationWarning>
       <head>
-        <title>AutoPilot Command Center</title>
-        <meta name='description' content='AI Command Center — Build, govern, and monitor your AI workforce' />
+        <title>FounderOS — The Autonomous Startup Operating System</title>
+        <meta name='description' content='Deploy an autonomous AI-native company with departments, treasury, governance, and investor intelligence.' />
       </head>
       <body
         className={cn(

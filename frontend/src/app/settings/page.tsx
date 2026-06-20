@@ -327,16 +327,24 @@ function IntegrationsCard() {
 
 // ── Main Settings Page ────────────────────────────────────────────────────
 
+interface UserSettings {
+  email_notifications: boolean
+  desktop_notifications: boolean
+  weekly_digest: boolean
+  marketing_emails: boolean
+  [key: string]: boolean
+}
+
 export default function SettingsPage() {
   const { data: session } = useSession()
-  const [settings, setSettings] = useState<any>(null)
+  const [settings, setSettings] = useState<UserSettings | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
 
   useEffect(() => {
     async function loadSettings() {
       try {
-        const data = await apiClient.get('/api/users/me/settings')
+        const data = await apiClient.get<UserSettings>('/api/users/me/settings')
         setSettings(data)
       } catch (e) {
         console.error(e)
@@ -367,15 +375,15 @@ export default function SettingsPage() {
 
   const handleToggle = async (key: string, checked: boolean) => {
     // Optimistic update
-    setSettings((prev: any) => ({ ...prev, [key]: checked }))
+    setSettings((prev) => (prev ? { ...prev, [key]: checked } : prev))
 
     try {
       await apiClient.patch('/api/users/me/settings', { [key]: checked })
       toast.success('Settings updated')
-    } catch (e) {
+    } catch {
       toast.error('Failed to save setting')
       // Revert on error
-      setSettings((prev: any) => ({ ...prev, [key]: !checked }))
+      setSettings((prev) => (prev ? { ...prev, [key]: !checked } : prev))
     }
   }
 
@@ -386,7 +394,7 @@ export default function SettingsPage() {
       setTimeout(() => {
         window.location.href = '/'
       }, 2000)
-    } catch (e) {
+    } catch {
       toast.error('Failed to delete account')
     }
   }

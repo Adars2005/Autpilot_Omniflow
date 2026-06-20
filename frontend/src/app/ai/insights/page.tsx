@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { CardWatermark } from '@/components/ui/card-watermark'
 import { Icons } from '@/components/ui/icons'
-import { InsightCard, type Insight } from '@/components/ai/insights/InsightCard'
+import { InsightCard, type Insight, type InsightType, type InsightSeverity } from '@/components/ai/insights/InsightCard'
 import { PatternCluster, type Pattern } from '@/components/ai/insights/PatternCluster'
 import { ActionCard, type ActionItem } from '@/components/ai/insights/ActionCard'
 import { apiClient } from '@/lib/api-client'
@@ -26,6 +26,20 @@ const tabs: Tab[] = [
   { id: 'actions', label: 'Actions', icon: Icons.zap },
 ]
 
+interface RawInsight {
+  id: string
+  type?: string
+  severity?: string
+  title?: string
+  description?: string
+  data?: Record<string, unknown>
+  suggested_action?: string
+  action_type?: string
+  confidence?: number
+  created_at?: string
+  is_demo?: boolean | string
+}
+
 export default function AIInsightsPage() {
   const [activeTab, setActiveTab] = useState('summary')
   const [insights, setInsights] = useState<Insight[]>([])
@@ -38,13 +52,13 @@ export default function AIInsightsPage() {
   const fetchInsights = useCallback(async () => {
     setIsLoading(true)
     try {
-      const data = await apiClient.get<any[]>('/api/insights')
+      const data = await apiClient.get<RawInsight[]>('/api/insights')
       if (data && data.length > 0) {
         // Map backend fields to frontend Insight interface
-        const mapped: Insight[] = data.map((d: any) => ({
+        const mapped: Insight[] = data.map((d) => ({
           id: d.id,
-          type: d.type || 'recommendation',
-          severity: d.severity || 'info',
+          type: (d.type as InsightType) || 'recommendation',
+          severity: (d.severity as InsightSeverity) || 'info',
           title: d.title || 'Untitled Insight',
           description: d.description || '',
           data: d.data || {},
@@ -84,9 +98,13 @@ export default function AIInsightsPage() {
       
       // Refresh the list
       await fetchInsights()
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('Analysis failed:', e)
-      toast.error(e?.message || 'Failed to generate insight. Check your Gemini API key.')
+      const message =
+        e instanceof Error
+          ? e.message
+          : 'Failed to generate insight. Check your Gemini API key.'
+      toast.error(message)
     } finally {
       setIsAnalyzing(false)
     }

@@ -187,14 +187,6 @@ const platformStyles: Record<string, { bg: string; border: string; badge: string
   },
 }
 
-const defaultPlatformStyle = {
-  bg: 'bg-gray-50',
-  border: 'border-gray-200',
-  badge: 'bg-gray-600 text-white',
-  icon: '📄',
-  text: 'text-gray-700',
-}
-
 function StatusBadge({ status }: { status: string }) {
   return (
     <span
@@ -275,15 +267,6 @@ function ReportPanel({ report, outputs }: { report?: FinalReport | null; outputs
     </div>
   )
 }
-
-// Smart section categorizer — intelligence/research vs platform content
-const intelligenceKeywords = [
-  'audience', 'persona', 'demographic', 'key point', 'channel', 'hook',
-  'forecast', 'engagement', 'recommendation', 'intelligence', 'research',
-  'insight', 'analysis', 'strategy', 'summary', 'overview', 'segment',
-  'psychographic', 'behavior', 'trend', 'competitor', 'market',
-  'initialized', 'identified', 'preferred', 'strategic',
-]
 
 const sectionIcons: Record<string, { emoji: string; color: string }> = {
   'audience': { emoji: '🎯', color: 'from-blue-500 to-cyan-500' },
@@ -384,14 +367,6 @@ function getSectionMeta(title: string) {
   return { emoji: '📄', color: 'from-gray-400 to-gray-500' }
 }
 
-function isIntelligenceSection(section: PlatformSection) {
-  const lower = (section.title + ' ' + section.platform).toLowerCase()
-  // If it matches a known social platform, it's content not intelligence
-  const platformNames = ['linkedin', 'instagram', 'whatsapp', 'twitter', 'facebook', 'email', 'blog', 'youtube', 'sms', 'press']
-  if (platformNames.some(p => lower.includes(p))) return false
-  return intelligenceKeywords.some(k => lower.includes(k)) || section.platform === 'Overview' || section.platform === 'Content'
-}
-
 function ContentGenerationPanel({ content }: { content?: ContentGeneration | null }) {
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set())
 
@@ -413,15 +388,6 @@ function ContentGenerationPanel({ content }: { content?: ContentGeneration | nul
       else next.add(index)
       return next
     })
-  }
-
-  // Get icon and color for any section — platform or intelligence
-  const getCardMeta = (section: PlatformSection) => {
-    const style = platformStyles[section.platform]
-    if (style) {
-      return { emoji: style.icon, color: style.badge, accentGradient: style.border.replace('border-', 'from-') + ' to-gray-300' }
-    }
-    return getSectionMeta(section.title)
   }
 
   return (
@@ -646,7 +612,6 @@ export default function AIManagerPage() {
         pollingRef.current = null
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitting, sessionId, isPaused])
 
   const updateCampaignCache = (session: CampaignSession) => {
